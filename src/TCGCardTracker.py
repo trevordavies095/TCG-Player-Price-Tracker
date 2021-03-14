@@ -7,6 +7,7 @@ import time
 from bs4 import BeautifulSoup
 from datetime import datetime
 from dblayer import dblayer
+from graphutil import graphutil
 from prettytable import PrettyTable
 
 def main():
@@ -15,6 +16,7 @@ def main():
     # Local variables
     args = sys.argv
     db = dblayer()
+    g = graphutil()
 
     #****** start main() ******#
     
@@ -32,7 +34,17 @@ def main():
 
     # Moved to DBLayer.py
     elif args[1] == "update":
-        db.update_prices()
+
+        print()
+        print("\tGetting URLs...")
+        urls = db.get_urls()
+
+        print("\tUpdating prices...")
+        for url in urls:
+            db.insert_price_data(parse(url[0]))
+
+        print("Done.\n")
+        
 
     # Moved to DBLayer.py
     elif args[1] == "top25":
@@ -75,6 +87,13 @@ def main():
         print("\tTotal : " + locale.currency(prices[0]+prices[1], grouping=True))
         print()
 
+    elif args[1] == "graph_card_worth":
+        url = args[2].split("?")[0]
+        price_data = db.get_card_price_data(url)
+        card_details = db.get_card_details(url)
+        g.graph_card_worth(price_data, card_details)
+
+
 
 def parse(url):
     # Local constants
@@ -101,7 +120,6 @@ def parse(url):
         else: card_data[labels[i].text] = float(prices[i].text[1:])
 
     return card_data
-
 
 def is_number(str):
     # Local constants

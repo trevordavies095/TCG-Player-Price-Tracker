@@ -85,22 +85,19 @@ class dblayer:
 
         return conn.execute(q).fetchall()
 
-    def update_prices(self):
+    
+    def get_urls(self):
         # Local constants
 
         # Local variables
         conn = sqlite3.connect("tcgcardtracker.db")
         c = conn.cursor()
         get_urls = "SELECT DISTINCT url FROM card;"
-        urls = c.execute(get_urls).fetchall()
 
-        #****** start update_prices() ****** #
+        #****** start get_urls() ******#
 
-        print("Updating prices...")
+        return c.execute(get_urls).fetchall()
 
-        for url in urls:
-            card_data = parse(url[0])
-            insert_price_data(card_data)
 
     def delete_card(self, url):
         # Local constants
@@ -136,7 +133,7 @@ class dblayer:
         if "Normal" not in card_data.keys(): card_data["Normal"] = None
         if "Foil" not in card_data.keys(): card_data["Foil"] = None
 
-        c.execute(price_insert, [card_id, datetime.now().strftime("%Y%m%d %H:%M:%S"), card_data["Normal"], card_data["Foil"]])
+        c.execute(price_insert, [card_id, datetime.now().strftime("%Y%m%d"), card_data["Normal"], card_data["Foil"]])
         conn.commit()
 
 
@@ -155,4 +152,50 @@ class dblayer:
         conn.commit()
 
         self.insert_price_data(card_data)
+
+    def get_card_price_data(self, url):
+        # Local constants
+
+        # Local variables
+        card_id = "SELECT id FROM card WHERE url = ?;"
+        conn = sqlite3.connect("tcgcardtracker.db")
+        c = conn.cursor()
+        price_data_q = """
+            SELECT MAX(p.price_date),
+	            CASE 
+		            WHEN c.foil = 1 THEN MAX(p.foil_price)
+		            ELSE MAX(p.normal_price)
+	            END AS 'price'
+            FROM price_data p
+            INNER JOIN card c
+                ON c.id = p.card_id
+            AND c.id = ?
+            GROUP BY p.price_date, 'price'
+            ORDER BY p.price_date ASC
+        """
+
+        #****** start get_price_data() ******#
+
+        card_id = conn.execute(card_id, [url]).fetchall()[0][0]
+        price_data = conn.execute(price_data_q, [card_id]).fetchall()
+
+        return price_data
+
+
+    def get_card_details(self, url):
+        # Local constants
+
+        # Local variables
+        card_details_q = "SELECT card_name, set_name, foil FROM card WHERE url = ?"
+        conn = sqlite3.connect("tcgcardtracker.db")
+        c = conn.cursor()
+
+        #****** start get_card_details() ******#
+
+        card_details = c.execute(card_details_q, [url]).fetchall()
+
+        return card_details
+
+
+
 
