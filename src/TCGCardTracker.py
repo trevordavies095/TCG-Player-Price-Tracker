@@ -20,21 +20,18 @@ def main():
 
     #****** start main() ******#
     
-    if len(args) < 2:
+    if len(args) < 2 or args[1] == "help":
         usage()
-        sys.exit()
 
-    # Moved to DBLayer.py
     if args[1] == "add":
+        if len(args) < 3: usage()
         db.insert_card(parse(args[2].split("?")[0]))
 
-    # Moved to DBLayer.py
     elif args[1] == "delete":
+        if len(args) < 3: usage()
         db.delete_card(args[2].split("?")[0])
 
-    # Moved to DBLayer.py
     elif args[1] == "update":
-
         print()
         print("\tGetting URLs...")
         urls = db.get_urls()
@@ -44,9 +41,7 @@ def main():
             db.insert_price_data(parse(url[0]))
 
         print("Done.\n")
-        
 
-    # Moved to DBLayer.py
     elif args[1] == "top25":
         t = PrettyTable(['Pokemon', 'Set', 'Normal Price', 'Foil Price', 'Price Date'])	
         res = db.top25()
@@ -55,9 +50,16 @@ def main():
 
         print(t)
 
-    # Moved to DBLayer.py
     elif args[1] == "export":
-        filename = 'price_export' + datetime.now().strftime("%Y%m%d%H%M") + '.csv'
+        urls = db.get_urls()
+        filename = 'export' + datetime.now().strftime("%Y%m%d%H%M") + '.txt'
+
+        with open(filename, 'w') as f:
+            for url in urls:
+                f.write(url[0] + "\n")
+
+    elif args[1] == "export_collection":
+        filename = 'collection_export' + datetime.now().strftime("%Y%m%d%H%M") + '.csv'
         with open(filename, 'w', newline = '') as csvfile:
             headers = ['Pokemon', 'Set', 'Normal Price ($)', 'Foil Price ($)', 'Price Date']
             w = csv.writer(csvfile, delimiter=',')
@@ -72,6 +74,7 @@ def main():
                 w.writerow([r[0], r[1], str(r[2]), str(r[3]), r[4]])
 
     elif args[1] == "import":
+        if len(args) < 3: usage()
         f = open(args[2], "r")
 
         for l in f:
@@ -88,11 +91,11 @@ def main():
         print()
 
     elif args[1] == "graph_card_worth":
+        if len(args) < 3: usage()
         url = args[2].split("?")[0]
         price_data = db.get_card_price_data(url)
         card_details = db.get_card_details(url)
         g.graph_card_worth(price_data, card_details)
-
 
 
 def parse(url):
@@ -121,6 +124,7 @@ def parse(url):
 
     return card_data
 
+
 def is_number(str):
     # Local constants
 
@@ -141,9 +145,20 @@ def usage():
     # Local variables
 
     #****** start usage() ******#
-
-    pass
-
+    print()
+    print(" Usage: python TCGCardTracker.py <arguement below> <optional-argument-1>")
+    print("\tadd (Optional): Add a card to your collection. Requires TCGPlayer URL.")
+    print("\tdelete (Optional): Delete a card from your collection. Requires TCGPlayer URL.")
+    print("\tupdate (Optional): Updates pricing data for every card in your collection.")
+    print("\ttop25 (Optional): Outputs the 25 most valuable cards from your collection.")
+    print("\texport (Optional): Exports a list of TCGPlayer URLs to a text file.")
+    print("\texport_collection (Optional): Exports your collection to a .csv including most recent price data.")
+    print("\timport (Optional): Imports a text file of TCGPlayer URLs to bulk import cards into your collection. Requires text file.")
+    print("\tworth (Optional): Ouputs how much your collection is worth using latest price data.")
+    print("\tgraph_card_worth (Optional): Outputs historical pricing data for a given card. Requires TCGPlayer URL.")
+    print()
+    sys.exit()
+    
 
 if __name__ == '__main__':
     main()
