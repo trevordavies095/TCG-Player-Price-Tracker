@@ -25,7 +25,10 @@ def main():
 
     if args[1] == "add":
         if len(args) < 3: usage()
-        db.insert_card(parse(args[2].split("?")[0]))
+        res = db.insert_card(parse(args[2].split("?")[0]))
+
+        if res is not None:
+            print("\n" + res + "\n")
 
     elif args[1] == "delete":
         if len(args) < 3: usage()
