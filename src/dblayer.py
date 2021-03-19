@@ -105,17 +105,31 @@ class dblayer:
         # Local variables
         conn = sqlite3.connect("tcgcardtracker.db")
         c = conn.cursor()
-        card_id = "SELECT id FROM card WHERE url = ?;"
+        card_id = "SELECT id, quantity FROM card WHERE url = ?;"
         card_delete = "DELETE FROM card WHERE id = ?;"
         price_delete = "DELETE FROM price_data WHERE card_id = ?;"
+        decrease_quan = "UPDATE CARD SET quantity = ? WHERE id = ?;"
 
         #****** start delete_card() ******#
         
-        card_id = str(conn.execute(card_id, [url]).fetchall()[0][0])
-        c.execute(card_delete, [card_id])
-        conn.commit()
-        c.execute(price_delete, [card_id])
-        conn.commit()
+        res = conn.execute(card_id, [url]).fetchall()
+
+        if res[0][1] > 1:
+            card_id = res[0][0]
+            quan = int(res[0][1]) - 1
+            c.execute(decrease_quan, [quan, card_id])
+            conn.commit()
+
+            return "Quanity decreased."
+
+        else: 
+            card_id = res[0][0]
+            c.execute(card_delete, [card_id])
+            conn.commit()
+            c.execute(price_delete, [card_id])
+            conn.commit()
+
+            return "Card deleted from collection"
 
 
     def insert_price_data(self, card_data):

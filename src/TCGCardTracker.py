@@ -32,7 +32,10 @@ def main():
 
     elif args[1] == "delete":
         if len(args) < 3: usage()
-        db.delete_card(args[2].split("?")[0])
+        res = db.delete_card(args[2].split("?")[0])
+
+        if res is not None:
+            print("\n" + res + "\n")
 
     elif args[1] == "update":
         print()
