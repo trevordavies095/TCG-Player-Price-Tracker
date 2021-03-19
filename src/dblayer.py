@@ -144,9 +144,6 @@ class dblayer:
         #****** start insert_price_data() ******# 
 
         card_id = conn.execute(card_id, [card_data["url"]]).fetchall()[0][0]
-        if "Normal" not in card_data.keys(): card_data["Normal"] = None
-        if "Foil" not in card_data.keys(): card_data["Foil"] = None
-
         c.execute(price_insert, [card_id, datetime.now().strftime("%Y%m%d"), card_data["Normal"], card_data["Foil"]])
         conn.commit()
 
@@ -158,7 +155,7 @@ class dblayer:
         conn = sqlite3.connect("tcgcardtracker.db")
         c = conn.cursor()
         card_id = "SELECT id, quantity FROM card WHERE url = ?"
-        card_insert = "INSERT INTO card (card_name, set_name, url) VALUES (?, ?, ?)"
+        card_insert = "INSERT INTO card (card_name, set_name, url, foil) VALUES (?, ?, ?, ?)"
         update_quantity = "UPDATE CARD SET quantity = ? WHERE id = ?"
 
 
@@ -167,7 +164,7 @@ class dblayer:
         # Check to see if the card is already in the db
         res = conn.execute(card_id, [card_data["url"]]).fetchall()
 
-        # card exists
+        # Card already exists in the database
         if len(res) > 0:
             card_id = res[0][0]
             quantity = int(res[0][1]) + 1
@@ -177,9 +174,18 @@ class dblayer:
 
             return card_data["card_name"] + " - " + card_data["set_name"] + ": " + str(quantity) + " cards in collection."
 
+        # Else the card is not already in the database
         else:
-            c.execute(card_insert, [card_data["card_name"], card_data["set_name"], card_data["url"]])
-            conn.commit()
+            if "Normal" not in card_data.keys(): 
+                card_data["Normal"] = None
+                c.execute(card_insert, [card_data["card_name"], card_data["set_name"], card_data["url"], 1])
+                conn.commit()
+
+            else:
+                card_data["Foil"] = None
+                c.execute(card_insert, [card_data["card_name"], card_data["set_name"], card_data["url"], 0])
+                conn.commit()
+
             self.insert_price_data(card_data)
 
 
