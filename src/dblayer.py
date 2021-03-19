@@ -137,21 +137,37 @@ class dblayer:
         conn.commit()
 
 
-    # TODO: If URL is duplicate, increase quanity instead of creating a new row.
     def insert_card(self, card_data):
         # Local constants
 
         # Local variables
         conn = sqlite3.connect("tcgcardtracker.db")
         c = conn.cursor()
+        card_id = "SELECT id, quantity FROM card WHERE url = ?"
         card_insert = "INSERT INTO card (card_name, set_name, url) VALUES (?, ?, ?)"
+        update_quantity = "UPDATE CARD SET quantity = ? WHERE id = ?"
+
 
         #****** start insert_card() ******#
 
-        c.execute(card_insert, [card_data["card_name"], card_data["set_name"], card_data["url"]])
-        conn.commit()
+        # Check to see if the card is already in the db
+        res = conn.execute(card_id, [card_data["url"]]).fetchall()
 
-        self.insert_price_data(card_data)
+        # card exists
+        if len(res) > 0:
+            card_id = res[0][0]
+            quantity = int(res[0][1]) + 1
+
+            c.execute(update_quantity, [quantity, card_id])
+            conn.commit()
+
+            return card_data["card_name"] + " - " + card_data["set_name"] + ": " + str(quantity) + " cards in collection."
+
+        else:
+            c.execute(card_insert, [card_data["card_name"], card_data["set_name"], card_data["url"]])
+            conn.commit()
+            self.insert_price_data(card_data)
+
 
     def get_card_price_data(self, url):
         # Local constants
