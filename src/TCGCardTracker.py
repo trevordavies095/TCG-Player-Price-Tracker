@@ -84,7 +84,7 @@ def main():
         f = open(args[2], "r")
 
         for l in f:
-            insert_card(parse(l.strip().split("?")[0]))
+            db.insert_card(parse(l.strip().split("?")[0]))
 
     elif args[1] == "worth":
         prices = db.worth()
