@@ -143,6 +143,9 @@ class dblayer:
 
         #****** start insert_price_data() ******# 
 
+        if "Normal" not in card_data.keys(): card_data["Normal"] = None
+        if "Foil" not in card_data.keys(): card_data["Foil"] = None
+
         card_id = conn.execute(card_id, [card_data["url"]]).fetchall()[0][0]
         c.execute(price_insert, [card_id, datetime.now().strftime("%Y%m%d"), card_data["Normal"], card_data["Foil"]])
         conn.commit()
@@ -176,15 +179,11 @@ class dblayer:
 
         # Else the card is not already in the database
         else:
-            if "Normal" not in card_data.keys(): 
-                card_data["Normal"] = None
-                c.execute(card_insert, [card_data["card_name"], card_data["set_name"], card_data["url"], 1])
-                conn.commit()
-
-            else:
-                card_data["Foil"] = None
-                c.execute(card_insert, [card_data["card_name"], card_data["set_name"], card_data["url"], 0])
-                conn.commit()
+            if "Normal" not in card_data.keys(): card_data["Normal"] = None
+            if "Foil" not in card_data.keys(): card_data["Foil"] = None
+                
+            c.execute(card_insert, [card_data["card_name"], card_data["set_name"], card_data["url"], 1])
+            conn.commit()
 
             self.insert_price_data(card_data)
 
