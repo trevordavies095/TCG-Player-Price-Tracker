@@ -147,7 +147,7 @@ class dblayer:
         if "Foil" not in card_data.keys(): card_data["Foil"] = None
 
         card_id = conn.execute(card_id, [card_data["url"]]).fetchall()[0][0]
-        c.execute(price_insert, [card_id, datetime.now().strftime("%Y%m%d"), card_data["Normal"], card_data["Foil"]])
+        c.execute(price_insert, [card_id, datetime.now().strftime("%Y-%m-%d"), card_data["Normal"], card_data["Foil"]])
         conn.commit()
 
 
@@ -231,6 +231,64 @@ class dblayer:
 
         return card_details
 
+    
+    def ticker(self):
+        # Local constants
 
+        # Local variables
+        ids_q = "SELECT DISTINCT id FROM card;"
+        current_q = """
+            SELECT c.card_name || ' (' || c.set_name || ')', MAX(p.price_date),
+	           CASE 
+		            WHEN c.foil = 1 THEN p.foil_price
+		            ELSE p.normal_price
+	            END
+            FROM price_data p
+            INNER JOIN card c
+                ON c.id = p.card_id
+            AND c.id = ?
+        """
+
+        start_q = """
+            SELECT c.card_name || ' (' || c.set_name || ')', p.price_date,
+	           CASE 
+		            WHEN c.foil = 1 THEN p.foil_price
+		            ELSE p.normal_price
+	            END
+            FROM price_data p
+            INNER JOIN card c
+                ON c.id = p.card_id AND c.id = ?
+			WHERE DATE(p.price_date) > DATE('now', '-7 days')
+			ORDER BY p.price_date ASC
+			LIMIT 1
+        """
+        data = {}
+        conn = sqlite3.connect("tcgcardtracker.db")
+        c = conn.cursor()
+
+        #****** start ticker() ******#
+
+        # Grab week worth of price_data for all cards
+        ids = c.execute(ids_q).fetchall()
+
+        for id in ids:
+            id = id[0]
+            
+            start_data = c.execute(start_q, [id]).fetchall()
+            current_data = c.execute(current_q, [id]).fetchall()
+
+            #print(start_data)
+            #print(current_data)
+
+
+            """
+            if float(start_data[0][2]) > float(current_data[0][2]): tick = "-"
+            else: tick = "+"
+            tick += str(round(abs(float(start_data[0][2]) - float(current_data[0][2])), 2))
+            """
+
+            d = [start_data[0][1], start_data[0][2], current_data[0][1], current_data[0][2], float(current_data[0][2]) - float(start_data[0][2])]
+            data[start_data[0][0]] = d
+        return data        
 
 
