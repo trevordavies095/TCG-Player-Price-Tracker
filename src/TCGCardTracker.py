@@ -46,7 +46,7 @@ def main():
         for url in urls:
             db.insert_price_data(parse(url[0]))
 
-        print("Done.\n")
+        print("\tDone.\n")
 
     elif args[1] == "top25":
         t = PrettyTable(['Pokemon', 'Set', 'Normal Price', 'Foil Price', 'Price Date'])	
@@ -102,6 +102,33 @@ def main():
         price_data = db.get_card_price_data(url)
         card_details = db.get_card_details(url)
         g.graph_card_worth(price_data, card_details)
+
+    elif args[1] == "ticker":
+        ret = db.ticker()
+        locale.setlocale(locale.LC_ALL, '')   
+        data = []
+
+        for key, value in ret.items():
+            d = []
+            d.append(key)
+            d.append(value[0])
+            d.append(value[1])
+            d.append(value[2])
+            d.append(value[3])
+            d.append(value[4])
+            data.append(d)
+        
+        data.sort(key=lambda x: float(x[5]))
+
+        t = PrettyTable(['Pokemon Card', 'Start Price (' + data[0][1] + ")", 'Current Price (' + data[0][3] + ")", "Change (+/-)"])
+
+        for x in reversed(data):
+            if float(x[2]) > float(x[4]): x[5] = "-"
+            else: x[5] = "+"
+            x[5] += str(round(abs(float(x[2]) - float(x[4])), 2))
+            t.add_row([x[0], locale.currency(x[2], grouping=True), locale.currency(x[4], grouping=True), x[5]])
+
+        print(t)
 
 
 def parse(url):
