@@ -63,13 +63,20 @@ python3 TCGCardTracker.py worth
 ```
 Outputs the total worth of your collection by using the most recent pricing data.
 
-### graph_card_worth
+### graph
 ```bash
 python3 TCGCardTracker.py graph_card_worth "https://shop.tcgplayer.com/pokemon/xy-evolutions/mewtwo-ex"
 ```
 Displays a graph of a given card's historical pricing data. Also includes a trend line.
 
 ![graph_card_worth example](https://i.imgur.com/VHzGVBJ.png)
+
+### ticker
+```bash
+python3 TCGCardTracker.py ticker
+python3 TCGCardTracker.py ticker 30
+```
+Displays a ticker grid of the change in value over a given time. If run without the days back parameter it will default to 7 days.
 
 ## Contributing
 Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
