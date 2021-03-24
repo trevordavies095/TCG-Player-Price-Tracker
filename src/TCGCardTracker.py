@@ -104,19 +104,14 @@ def main():
         g.graph_card_worth(price_data, card_details)
 
     elif args[1] == "ticker":
-        ret = db.ticker()
+        if len(args) > 2: ret = db.ticker(str(args[2]))
+        else: ret = db.ticker(str(7))
+
         locale.setlocale(locale.LC_ALL, '')   
         data = []
 
         for key, value in ret.items():
-            d = []
-            d.append(key)
-            d.append(value[0])
-            d.append(value[1])
-            d.append(value[2])
-            d.append(value[3])
-            d.append(value[4])
-            data.append(d)
+            data.append([key, value[0], value[1], value[2], value[3], value[4]])
         
         data.sort(key=lambda x: float(x[5]))
 
