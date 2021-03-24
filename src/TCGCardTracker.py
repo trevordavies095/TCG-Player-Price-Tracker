@@ -96,7 +96,7 @@ def main():
         print("\tTotal : " + locale.currency(prices[0]+prices[1], grouping=True))
         print()
 
-    elif args[1] == "graph_card_worth":
+    elif args[1] == "graph":
         if len(args) < 3: usage()
         url = args[2].split("?")[0]
         price_data = db.get_card_price_data(url)
