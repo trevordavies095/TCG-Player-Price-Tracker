@@ -232,7 +232,7 @@ class dblayer:
         return card_details
 
     
-    def ticker(self):
+    def ticker(self, way_back):
         # Local constants
 
         # Local variables
@@ -249,6 +249,8 @@ class dblayer:
             AND c.id = ?
         """
 
+        where_clause = "WHERE DATE(p.price_date) > DATE('now', '-" + way_back + " days')"
+
         start_q = """
             SELECT c.card_name || ' (' || c.set_name || ')', p.price_date,
 	           CASE 
@@ -258,7 +260,7 @@ class dblayer:
             FROM price_data p
             INNER JOIN card c
                 ON c.id = p.card_id AND c.id = ?
-			WHERE DATE(p.price_date) > DATE('now', '-7 days')
+            """ + where_clause + """
 			ORDER BY p.price_date ASC
 			LIMIT 1
         """
@@ -273,19 +275,8 @@ class dblayer:
 
         for id in ids:
             id = id[0]
-            
-            start_data = c.execute(start_q, [id]).fetchall()
+            start_data = conn.execute(start_q, [id]).fetchall()
             current_data = c.execute(current_q, [id]).fetchall()
-
-            #print(start_data)
-            #print(current_data)
-
-
-            """
-            if float(start_data[0][2]) > float(current_data[0][2]): tick = "-"
-            else: tick = "+"
-            tick += str(round(abs(float(start_data[0][2]) - float(current_data[0][2])), 2))
-            """
 
             d = [start_data[0][1], start_data[0][2], current_data[0][1], current_data[0][2], float(current_data[0][2]) - float(start_data[0][2])]
             data[start_data[0][0]] = d
