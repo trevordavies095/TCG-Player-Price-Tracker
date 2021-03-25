@@ -183,8 +183,9 @@ def usage():
     print("\texport_collection (Optional): Exports your collection to a .csv including most recent price data.")
     print("\timport (Optional): Imports a text file of TCGPlayer URLs to bulk import cards into your collection. Requires text file.")
     print("\tworth (Optional): Ouputs how much your collection is worth using latest price data.")
-    print("\tgraph_card_worth (Optional): Outputs historical pricing data for a given card. Requires TCGPlayer URL.")
-    print()
+    print("\tgraph (Optional): Outputs historical pricing data for a given card. Requires TCGPlayer URL.")
+    print("\tgraph (Optional): Outputs historical pricing data for a given card. Requires TCGPlayer URL.")
+    print("\tticker (Optional): Displays a ticker grid of the change in value over a given time. If run without the days back parameter it will default to 7 days.")
     sys.exit()
     
 
