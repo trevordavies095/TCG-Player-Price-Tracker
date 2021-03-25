@@ -181,8 +181,12 @@ class dblayer:
         else:
             if "Normal" not in card_data.keys(): card_data["Normal"] = None
             if "Foil" not in card_data.keys(): card_data["Foil"] = None
-                
-            c.execute(card_insert, [card_data["card_name"], card_data["set_name"], card_data["url"], 1])
+
+            if card_data["Normal"] and card_data["Foil"]:
+                foil = input("Foil? (Y/N) > ").lower()
+
+            if foil == "y": c.execute(card_insert, [card_data["card_name"], card_data["set_name"], card_data["url"], 1])
+            else: c.execute(card_insert, [card_data["card_name"], card_data["set_name"], card_data["url"], 0])
             conn.commit()
 
             self.insert_price_data(card_data)
