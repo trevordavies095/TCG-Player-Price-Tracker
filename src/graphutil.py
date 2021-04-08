@@ -35,6 +35,7 @@ class graphutil:
 
         # Change the labels pretty
         plt.xlabel("Date")
+        plt.xticks(rotation=-45)
         plt.ylabel("Price ($)")
         
         # Done
