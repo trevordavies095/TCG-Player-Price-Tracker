@@ -1,8 +1,26 @@
 import sqlite3
 from datetime import datetime
 
+
 class dblayer:
+    """
+    This is a class for all database interactions for TCGCardTracker.py.
+
+    Attributes:
+        None
+    """
+
     def worth(self):
+        """
+        This function calculates how much your collection is currently worth.
+
+        Parameters:
+            None
+        
+        Returns:
+            List: A list of where index 0 contains the normal price worth, index 1 contains the foil price worth.
+        """
+
         # Local constants
 
         # Local variables
@@ -42,10 +60,23 @@ class dblayer:
 
         return [n_price, f_price]
 
-    '''
-    #TODO Need to clean up the query. It uses IS NOT 'None'. Is there a way to pass in the None value into the query instead of hard coding?
-    '''
+
     def export(self):
+        """
+        This function queries the database and returns your collection.
+
+        Parameters:
+            None
+        
+        Returns:
+            Tuple of tuples.
+                Index 0 - Card name
+                Index 1 - Set name
+                Index 2 - Normal price
+                Index 3 - Foil price
+                Index 4 - Price date
+        """
+
         # Local constants
 
         # Local variabes
@@ -63,10 +94,22 @@ class dblayer:
         return conn.execute(q)
 
 
-    '''
-    #TODO Need to clean up the query. It uses IS NOT 'None'. Is there a way to pass in the None value into the query instead of hard coding?
-    '''
     def top25(self):
+        """
+        This function grabs the 25 most valuable cards in your collection.
+
+        Parameters:
+            None
+
+        Returns:
+            Tuple of tuples.
+                Index 0 - Card name
+                Index 1 - Set name
+                Index 2 - Normal price
+                Index 3 - Foil price
+                Index 4 - Price date
+        """
+
         # Local constants
 
         # Local variables
@@ -87,6 +130,17 @@ class dblayer:
 
     
     def get_urls(self):
+        """
+        This function grabs the TCG Player URL for all cards in the collection.
+
+        Parameters:
+            None
+
+        Returns:
+            Tuple of tuples.
+                Index 0 - TCG Player URL
+        """
+
         # Local constants
 
         # Local variables
@@ -100,6 +154,17 @@ class dblayer:
 
 
     def delete_card(self, url):
+        """
+        This function takes in a URL and either 1) decreases the quantity of the card in the collection or 2) deletes the card
+        from the collection if the quantity is 1.
+
+        Parameters:
+            url (string): TCG Player URL of the card to be deleted.
+
+        Returns: 
+            string: Either the quantity decreased or the card was deleted from the collection.
+        """
+         
         # Local constants
 
         # Local variables
@@ -133,6 +198,21 @@ class dblayer:
 
 
     def insert_price_data(self, card_data):
+        """
+        This function will insert the most recent price data that was scraped from TCG Player.
+
+        Parameters:
+            card_data (Dictionary): Keys are the following 
+                url
+                card_name
+                set_name
+                Foil
+                Normal
+
+        Returns:
+            None
+        """
+
         # Local constants
 
         # Local variables
@@ -152,6 +232,21 @@ class dblayer:
 
 
     def insert_card(self, card_data):
+        """
+        This function adds a card into the database's card table.
+
+        Parameters:
+            card_data (Dictionary): Keys are the following
+                url
+                card_name
+                set_name
+                Foil
+                Normal
+
+        Returns:   
+            string: Card who's quantity was increased if it was already in the database.
+        """
+
         # Local constants
 
         # Local variables
@@ -160,6 +255,7 @@ class dblayer:
         card_id = "SELECT id, quantity FROM card WHERE url = ?"
         card_insert = "INSERT INTO card (card_name, set_name, url, foil) VALUES (?, ?, ?, ?)"
         update_quantity = "UPDATE CARD SET quantity = ? WHERE id = ?"
+        foil = None
 
 
         #****** start insert_card() ******#
@@ -193,6 +289,18 @@ class dblayer:
 
 
     def get_card_price_data(self, url):
+        """
+        This function will query the database for all pricing data for a given card.
+
+        Parameters:
+            url (string): TCG Player URL for a given card.
+
+        Returns:
+            Tuple of tuples.
+                Index 0 - Price date
+                Index 1 - Price data
+        """
+
         # Local constants
 
         # Local variables
@@ -222,6 +330,20 @@ class dblayer:
 
 
     def get_card_details(self, url):
+        """
+        This function will query the database for the card name, set name and whether a card is a foil for
+        a given card.
+
+        Parameters:
+            url (string): TCG Player URL for a given card.
+
+        Returns:
+            Tuple of tuples.
+                Index 0 - Card name
+                Index 1 - Set name
+                Index 2 - Foil flag
+        """
+
         # Local constants
 
         # Local variables
@@ -237,6 +359,21 @@ class dblayer:
 
     
     def ticker(self, way_back):
+        """
+        This function will calculate the change in the collections card price for a given timeframe.
+
+        Parameters:
+            way_back (int): Default is 7 days, otherwise it is user specified.
+
+        Returns:
+            data (Dictionary): This provides pricing data for cards which are used as the key in the dictionary. List of pricing data is the value.
+                Index 0 - Start date
+                Index 1 - Start price
+                Index 2 - Current date
+                Index 3 - Current price
+                Index 4 - Change in price
+        """
+
         # Local constants
 
         # Local variables
@@ -285,5 +422,4 @@ class dblayer:
             d = [start_data[0][1], start_data[0][2], current_data[0][1], current_data[0][2], float(current_data[0][2]) - float(start_data[0][2])]
             data[start_data[0][0]] = d
         return data        
-
 
