@@ -4,7 +4,31 @@ import numpy as np
 from datetime import datetime
 
 class graphutil:
+    """
+    This is the class that handles all graphing aspects for TCG Card Tracker.
+
+    Attributes:
+        None
+    """
+
     def graph_card_worth(self, price_data, card_details):
+        """
+        This function graphs a cards worth over time
+
+        Parameters:
+            price_data: Tuple of tuples.
+                Index 0 - Price date
+                Index 1 - Price data
+
+            card_details: Tuple of tuples.
+                Index 0 - Card name
+                Index 1 - Set name
+                Index 2 - Foil flag
+        
+        Returns:
+            None
+        """
+
         # Local constants
 
         # Local variables
