@@ -5,7 +5,7 @@ import sys
 import requests
 import time
 from bs4 import BeautifulSoup
-from datetime import datetime
+from datetime import datetime, timedelta
 from dblayer import dblayer
 from graphutil import graphutil
 from prettytable import PrettyTable
@@ -104,8 +104,10 @@ def main():
         g.graph_card_worth(price_data, card_details)
 
     elif args[1] == "ticker":
-        if len(args) > 2: ret = db.ticker(str(args[2]))
-        else: ret = db.ticker(str(7))
+        if len(args) > 2: days_back = str(args[2])
+        else: days_back = str(7)
+
+        ret = db.ticker(days_back)
 
         locale.setlocale(locale.LC_ALL, '')   
         data = []
@@ -115,7 +117,7 @@ def main():
         
         data.sort(key=lambda x: float(x[5]))
 
-        t = PrettyTable(['Pokemon Card', 'Start Price (' + data[0][1] + ")", 'Current Price (' + data[0][3] + ")", "Change (+/-)"])
+        t = PrettyTable(['Pokemon Card', 'Start Price (' + datetime.strftime(datetime.today() - timedelta(days=int(days_back)), "%Y-%m-%d") + ")", 'Current Price (' + data[0][3] + ")", "Change (+/-)"])
 
         for x in reversed(data):
             if float(x[2]) > float(x[4]): x[5] = "-"
