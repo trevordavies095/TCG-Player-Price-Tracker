@@ -11,6 +11,17 @@ from graphutil import graphutil
 from prettytable import PrettyTable
 
 def main():
+    """
+    This function handles any logic that has to do with command arguments.
+    It is the driver of the application.
+
+    Parameters:
+        None
+        
+    Returns:
+        None
+    """
+
     # Local constants
 
     # Local variables
@@ -20,9 +31,11 @@ def main():
 
     #****** start main() ******#
     
+    # Check to see if too many args, or need help
     if len(args) < 2 or args[1] == "help":
         usage()
 
+    # User chose add command
     if args[1] == "add":
         if len(args) < 3: usage()
         res = db.insert_card(parse(args[2].split("?")[0]))
@@ -30,6 +43,7 @@ def main():
         if res is not None:
             print("\n" + res + "\n")
 
+    # User chose delete command
     elif args[1] == "delete":
         if len(args) < 3: usage()
         res = db.delete_card(args[2].split("?")[0])
@@ -37,6 +51,7 @@ def main():
         if res is not None:
             print("\n" + res + "\n")
 
+    # User chose update command 
     elif args[1] == "update":
         print()
         print("\tGetting URLs...")
@@ -48,6 +63,7 @@ def main():
 
         print("\tDone.\n")
 
+    # User chose top25 command
     elif args[1] == "top25":
         t = PrettyTable(['Pokemon', 'Set', 'Normal Price', 'Foil Price', 'Price Date'])	
         res = db.top25()
@@ -56,6 +72,7 @@ def main():
 
         print(t)
 
+    # User chose export command
     elif args[1] == "export":
         urls = db.get_urls()
         filename = 'export' + datetime.now().strftime("%Y%m%d%H%M") + '.txt'
@@ -64,6 +81,7 @@ def main():
             for url in urls:
                 f.write(url[0] + "\n")
 
+    # User chose export_collection command 
     elif args[1] == "export_collection":
         filename = 'collection_export' + datetime.now().strftime("%Y%m%d%H%M") + '.csv'
         with open(filename, 'w', newline = '') as csvfile:
@@ -79,6 +97,7 @@ def main():
                 if r[3] == None: r[3] = ''
                 w.writerow([r[0], r[1], str(r[2]), str(r[3]), r[4]])
 
+    # User chose import command
     elif args[1] == "import":
         if len(args) < 3: usage()
         f = open(args[2], "r")
@@ -86,6 +105,7 @@ def main():
         for l in f:
             db.insert_card(parse(l.strip().split("?")[0]))
 
+    # User chose worth command
     elif args[1] == "worth":
         prices = db.worth()
 
@@ -96,6 +116,7 @@ def main():
         print("\tTotal : " + locale.currency(prices[0]+prices[1], grouping=True))
         print()
 
+    # User chose graph command
     elif args[1] == "graph":
         if len(args) < 3: usage()
         url = args[2].split("?")[0]
@@ -103,6 +124,7 @@ def main():
         card_details = db.get_card_details(url)
         g.graph_card_worth(price_data, card_details)
 
+    # User chose ticker command
     elif args[1] == "ticker":
         if len(args) > 2: days_back = str(args[2])
         else: days_back = str(7)
@@ -129,6 +151,21 @@ def main():
 
 
 def parse(url):
+    """
+    This function will scrape the pricing information off of a provided TCG Player URL.
+
+    Parameters:
+        url (string): TCG Player URL of the card to be web scraped.
+    
+    Returns:
+        card_data (Dictionary): Keys are the following
+            url
+            card_name
+            set_name
+            Foil
+            Normal
+    """
+
     # Local constants
 
     # Local variables
@@ -156,6 +193,17 @@ def parse(url):
 
 
 def is_number(str):
+    """ 
+    This function takes in a string and determines if it is a real number.
+
+    Parameters:
+        str (string): String value we want to determine if it is a number.
+
+    Returns:
+        Boolean: True if it is number, false otherwise.
+
+    """
+
     # Local constants
 
     # Local variabes
@@ -170,6 +218,16 @@ def is_number(str):
 
 
 def usage():
+    """ 
+    This function will output how to use the application.
+
+    Parameters:
+        None
+
+    Returns:
+        None
+    """
+
     # Local constants
 
     # Local variables
