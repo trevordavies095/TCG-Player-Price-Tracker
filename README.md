@@ -1,6 +1,6 @@
-# TCGCardTracker
+# TCG Player Price Tracker
 
-TCGCardTracker is a program that will allow you to track the TCG Player market value of your Pokemon* collection.
+TCG Player Price Tracker is a program that will allow you to track the TCG Player market value of your Pokemon* collection.
 
 The prices are acquired by web scraping the data from tcgplayer.com and storing in a SQLite database.
 
