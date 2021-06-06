@@ -61,6 +61,66 @@ class dblayer:
         return [n_price, f_price]
 
 
+    def graph_worth(self):
+        # Local constants
+
+        # Local variables
+        conn = sqlite3.connect("tcgcardtracker.db")
+        c = conn.cursor()
+        date_q = "SELECT DISTINCT price_date FROM price_data;"
+        n_price_query = """
+            SELECT SUM(y.normal_price) FROM (
+                SELECT card_id, MAX(price_date) AS MaxDate
+                FROM price_data 
+                GROUP BY card_id
+            )  x
+            INNER JOIN price_data y 
+                ON y.card_id = x.card_id
+            INNER JOIN card c
+                ON c.id = x.card_id
+            WHERE c.foil = 0
+            AND y.price_date = ?
+        """
+
+        f_price_query = """
+            SELECT SUM(y.foil_price) FROM (
+                SELECT card_id, MAX(price_date) AS MaxDate
+                FROM price_data 
+                GROUP BY card_id
+            )  x
+            INNER JOIN price_data y 
+                ON y.card_id = x.card_id
+            INNER JOIN card c
+                ON c.id = x.card_id
+            WHERE c.foil = 1
+            AND y.price_date = ?
+        """
+
+        # key: date, value: list, index 0 - normal, index 1 - foil, index 2 - total
+        prices = {}
+        x = []
+
+        #****** start graph_worth() ******#
+
+        # Grab list of distinct price_dates
+        dates = c.execute(date_q).fetchall()
+
+        # For date in price_dates
+        for date in dates:
+            date = date[0]
+
+            # Calculate worth for that day
+            n_worth = float(c.execute(n_price_query, [date]).fetchone()[0])
+            f_worth = float(c.execute(f_price_query, [date]).fetchone()[0])
+
+            t_worth = n_worth + f_worth
+
+            # Append to some list
+            prices[date] = [n_worth, f_worth, t_worth]
+
+        return prices
+        
+
     def export(self):
         """
         This function queries the database and returns your collection.
