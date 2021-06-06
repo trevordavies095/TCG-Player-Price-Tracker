@@ -65,4 +65,36 @@ class graphutil:
         # Done
         plt.show()
 
+    
+    def graph_collection_worth(self, price_data):
+        # Local constants
+
+        # Local variables
+        x_axis_data = list(price_data.keys())
+        y_axis_data = []
+
+        #****** start graph_collection_worth() ******#
+
+        for value in price_data.values(): y_axis_data.append(value[2])
+
+        # Plot the actual data
+        plt.plot(x_axis_data, y_axis_data, 'o')
+
+        # Calculate the trendline
+        z = np.polyfit(mdates.date2num(x_axis_data), y_axis_data, 1)
+        p = np.poly1d(z)
+
+        # Plot the trendline
+        plt.plot(x_axis_data,p(mdates.date2num(x_axis_data)), "r--")
+
+        plt.title("Collection Worth")
+
+        # Change the labels pretty
+        plt.xlabel("Date")
+        plt.xticks(rotation=-45)
+        plt.ylabel("Price ($)")
+        
+        # Done
+        plt.show()
+
 
